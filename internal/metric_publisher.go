@@ -23,11 +23,11 @@ func (p *MetricPublisher) PublishOrderCreated(order *Order) {
 		log.Println("failed to publish orders.created.count metric: ", err)
 	}
 
-	if err := p.client.Incr(metricPrefix + "items.created.count", nil, float64(len(order.Items))); err != nil {
+	if err := p.client.Count(metricPrefix + "items.created.count", int64(len(order.Items)), nil, 1); err != nil {
 		log.Println("failed to publish items.count metric: ", err)
 	}
 
-	if err := p.client.Incr(metricPrefix + "tpv", nil, float64(order.TotalPrice())); err != nil {
+	if err := p.client.Count(metricPrefix + "tpv", int64(order.TotalPrice()), nil, 1); err != nil {
 		log.Println("failed to publish tpv metric: ", err)
 	}
 }
