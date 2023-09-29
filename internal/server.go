@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -51,7 +52,7 @@ func NewServer(service *OrderService, port int) *Server {
 
 	return &Server{
 		Server: &http.Server{
-			Addr:    ":8080",
+			Addr:    fmt.Sprintf(":%d", port),
 			Handler: router,
 		},
 		router: router,
