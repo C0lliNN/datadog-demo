@@ -26,28 +26,28 @@ func (r *OrderRepository) Create(ctx context.Context, order *Order) error {
 	return err
 }
 
-func (r *OrderRepository) FindAll(ctx context.Context) ([]*Order, error) {
+func (r *OrderRepository) FindAll(ctx context.Context) ([]Order, error) {
 	cursor, err := r.database.Collection("orders").Find(ctx, bson.D{})
 	if err != nil {
 		return nil, err
 	}
 	defer cursor.Close(ctx)
 
-	var orders []*Order
+	var orders []Order
 	for cursor.Next(ctx) {
 		var order Order
 		if err := cursor.Decode(&order); err != nil {
 			return nil, err
 		}
-		orders = append(orders, &order)
+		orders = append(orders, order)
 	}
 	return orders, nil
 }
 
-func (r *OrderRepository) FindOne(ctx context.Context, id string) (*Order, error) {
+func (r *OrderRepository) FindOne(ctx context.Context, id string) (Order, error) {
 	var order Order
-	if err := r.database.Collection("orders").FindOne(ctx, bson.D{}).Decode(&order); err != nil {
-		return nil, err
+	if err := r.database.Collection("orders").FindOne(ctx, bson.M{"_id": id}).Decode(&order); err != nil {
+		return Order{}, err
 	}
-	return &order, nil
+	return order, nil
 }

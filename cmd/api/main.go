@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/DataDog/datadog-go/statsd"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -23,6 +24,11 @@ func main() {
 		log.Fatal("mongo uri not provided")
 	}
 
+	datadogAgentURI := os.Getenv("DATADOG_AGENT_URI")
+	if datadogAgentURI == "" {
+		log.Fatal("datadog agent uri not provided")
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -31,9 +37,15 @@ func main() {
 		log.Fatal(err)
 	}
 
+	statsd, err := statsd.New(datadogAgentURI)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer statsd.Close()
+
 	database := client.Database("orders")
 	repo := internal.NewOrderRepository(database)
-	service := internal.NewOrderService(repo)
+	service := internal.NewOrderService(repo, internal.NewMetricPublisher(statsd))
 	server := internal.NewServer(service, port)
 
 	if err := server.Run(); err != nil {
