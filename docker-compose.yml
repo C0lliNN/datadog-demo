@@ -6,3 +6,22 @@ services:
       - 27017:27017
     volumes:
       - ./data:/data/db
+
+  datadog-agent:
+    image: datadog/agent:latest
+    depends_on:
+      - mongodb
+    environment:
+      - DD_API_KEY=${DD_API_KEY}
+      - DD_APPLICATION_ID=${DD_APPLICATION_ID}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+
+
+
+
+
+
+
